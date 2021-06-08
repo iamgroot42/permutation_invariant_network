@@ -2,23 +2,17 @@
 
 PyTorch implementation for [Permutation Invariant Network](https://dl.acm.org/doi/pdf/10.1145/3243734.3243834). This implementation has been tested to recreate experimental results from the original paper (more information [here](https://arxiv.org/pdf/2106.03699.pdf))
 
+## Setup
 
-# Setup
-
-You can either via pip:
-
-```bash
-pip install perminvnetwork
-```
-
-Or clone and install directly, if you wish to make changes:
+Clone the repository
 
 ```bash
 git clone https://github.com/iamgroot42/perminvnetwork.git
-pip install -e perminvnetwork
 ```
 
-## Features
+## File Structure
 
-- Contains example code for extracting features from Pytorch model (current support for linear layers) as well as training/testing
-- Supports batched data training
+- `example.py` File with dummy setup to demonstrate use of provided code
+- `misc.py` Helper functions and utilities
+- `pim.py` Model architecture for Permutation Invariant Network
+- `train.py` Functions to train and test meta-classifier
