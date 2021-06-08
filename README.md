@@ -1,0 +1,2 @@
+# permutation_invariant_network
+PyTorch implementation for Permutation Invariant Network
