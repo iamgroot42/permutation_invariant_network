@@ -7,7 +7,7 @@ PyTorch implementation for [Permutation Invariant Network](https://dl.acm.org/do
 Clone the repository
 
 ```bash
-git clone https://github.com/iamgroot42/perminvnetwork.git
+git clone https://github.com/iamgroot42/permutation_invariant_network.git
 ```
 
 ## File Structure
