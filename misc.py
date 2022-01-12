@@ -74,7 +74,6 @@ def prepare_batched_data(X: List[List[ch.Tensor]]) -> List[ch.Tensor]:
 
 
 # Function to extract model parametrs for all models in given list
-
 def load_model_parameters(model_list: List[Any],
                           first_n: int = np.inf) -> np.ndarray:
     """
