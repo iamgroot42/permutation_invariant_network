@@ -7,12 +7,16 @@ from typing import List, Tuple, Any
 # Function to extract model parameters
 def get_weight_layers(m: Any,
                       transpose: bool = True,
-                      first_n: int = np.inf) -> Tuple[List[int], List[ch.Tensor]]:
+                      first_n: int = np.inf,
+                      start_n: int = 0,
+                      layer_prefix: str = None) -> Tuple[List[int], List[ch.Tensor]]:
     """
     Extract model parameters from given model (with FC layers)
     :param m: model for which parameters requested
     :param transpose: parameters need to be transposed? (eg. GraphConv layers)
     :param first_n: use only first-N layer parameters
+    :param start_n: start extracting parameters from layer N
+    :param layer_prefix: String to look for in parameter name to consider as weight
     :return: (dimensions of layers, model parameters)
     """
     dims, weights, biases = [], [], [],
@@ -20,6 +24,9 @@ def get_weight_layers(m: Any,
 
     # Iterate through model parameters
     for name, param in m.named_parameters():
+
+        if layer_prefix and not name.startswith(layer_prefix):
+            continue
 
         # If W matrix
         if "weight" in name:
@@ -38,10 +45,16 @@ def get_weight_layers(m: Any,
 
             # Store bias matrix
             biases.append(ch.unsqueeze(param.data.detach().cpu(), 0))
-
-        # If requested, look at only first_n layers
+        
         # Assume each layer has weight & bias
         i += 1
+
+        # If requested, start looking from start_n layer
+        if (i - 1) // 2 < start_n:
+            dims, weights, biases = [], [], []
+            continue
+
+        # If requested, look at only first_n layers
         if i // 2 > first_n - 1:
             break
 
@@ -75,11 +88,15 @@ def prepare_batched_data(X: List[List[ch.Tensor]]) -> List[ch.Tensor]:
 
 # Function to extract model parametrs for all models in given list
 def load_model_parameters(model_list: List[Any],
-                          first_n: int = np.inf) -> np.ndarray:
+                          first_n: int = np.inf,
+                          start_n: int = 0,
+                          layer_prefix: str = None) -> np.ndarray:
     """
     Given a list of models, extract their parameters
     :param model_list: list of models' parameters
     :param first_n: extract parameters only for first n layers
+    :param start_n: start extracting parameters from layer N
+    :param layer_prefix: String to look for in parameter name to consider as weight
     :return: (dimensions of layers, list of model parameters (list))
     """
     vecs = []
@@ -87,7 +104,9 @@ def load_model_parameters(model_list: List[Any],
     for model in tqdm(model_list):
 
         # Get model params, shift to GPU
-        dims, fvec = get_weight_layers(model, first_n=first_n)
+        dims, fvec = get_weight_layers(
+            model, first_n=first_n, start_n=start_n,
+            layer_prefix=layer_prefix)
         fvec = [x.cuda() for x in fvec]
 
         vecs.append(fvec)

@@ -16,15 +16,56 @@ def acc_fn(x, y, binary):
     return ch.sum(y == ch.argmax(x, 1))
 
 
+def get_preds(
+    model: Any,
+    X: List[ch.Tensor],
+    batch_size: int,
+    gpu: bool = False,
+    binary: bool = True,
+    regression: bool = False):
+    """
+    Get predictions for given data using model and batch size
+    :param model: model to use
+    :param X: data to predict
+    :param binary: is task binary classification?
+    :param regression: is task regression?
+    :param batch_size: batch size
+    """
+    preds = []
+    i = 0
+    # Take note of number of samples
+    n_samples = len(X[0])
+
+    while i < n_samples:
+        outputs = []
+
+        # Model features stored as normal list
+        param_batch = [x[i:i+batch_size] for x in X]
+        if gpu:
+            param_batch = [a.cuda() for a in param_batch]
+        if binary or regression:
+            outputs.append(model(param_batch)[:, 0])
+        else:
+            outputs.append(model(param_batch))
+
+        preds.append(ch.cat(outputs, 0))
+        # Next batch
+        i += batch_size
+    
+    preds = ch.cat(preds, 0)
+    return preds
+
+
 @ch.no_grad()
-def test_model(model: Any,
-               loss_fn: Any,
-              X: List[ch.Tensor],
-              Y: ch.Tensor,
-              batch_size: int,
-              binary: bool=True,
-              regression: bool=False,
-              gpu: bool=False) -> Tuple[float, float]:
+def test_model(
+    model: Any,
+    loss_fn: Any,
+    X: List[ch.Tensor],
+    Y: ch.Tensor,
+    batch_size: int,
+    binary: bool=True,
+    regression: bool=False,
+    gpu: bool=False) -> Tuple[float, float]:
     """
     Testing performance of meta-classifier on given data
     :param model: meta-classifier model
@@ -53,8 +94,10 @@ def test_model(model: Any,
         outputs = []
 
         param_batch = [x[i:i+batch_size] for x in X]
+        y_batch = Y[i:i+batch_size]
         if gpu:
             param_batch = [a.cuda() for a in param_batch]
+            y_batch = y_batch.cuda()
 
         if binary or regression:
             outputs.append(model(param_batch)[:, 0])
@@ -65,9 +108,9 @@ def test_model(model: Any,
 
         num_samples += outputs.shape[0]
         loss += loss_fn(outputs,
-                        Y[i:i+batch_size]).item() * num_samples
+                        y_batch).item() * num_samples
         if not regression:
-            running_acc += acc_fn(outputs, Y[i:i+batch_size], binary).item()
+            running_acc += acc_fn(outputs, y_batch, binary).item()
 
         # Next batch
         i += batch_size
