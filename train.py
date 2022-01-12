@@ -48,7 +48,7 @@ def get_preds(
         else:
             outputs.append(model(param_batch))
 
-        preds.append(ch.cat(outputs, 0))
+        preds.append(ch.cat(outputs, 0).detach())
         # Next batch
         i += batch_size
     
