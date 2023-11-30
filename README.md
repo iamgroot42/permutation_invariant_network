@@ -4,15 +4,18 @@ PyTorch implementation for [Permutation Invariant Network](https://dl.acm.org/do
 
 ## Setup
 
-Clone the repository
+Clone the repository and install package
 
 ```bash
 git clone https://github.com/iamgroot42/permutation_invariant_network.git
+cd permutation_invariant_network
+pip install -e .
 ```
 
 ## File Structure
 
 - `example.py` File with dummy setup to demonstrate use of provided code
+
 - `misc.py` Helper functions and utilities
 - `pim.py` Model architecture for Permutation Invariant Network
 - `train.py` Functions to train and test meta-classifier

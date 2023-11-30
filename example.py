@@ -1,9 +1,9 @@
 import torch as ch
 import torch.nn as nn
 import numpy as np
-from train import train_model
-from pim import PermInvModel
-from misc import prepare_batched_data, load_model_parameters
+from meta_pin.train import train_model
+from meta_pin.pim import PermInvModel
+from meta_pin.misc import prepare_batched_data, load_model_parameters
 
 
 class DummyModel(nn.Module):
